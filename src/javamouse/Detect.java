@@ -24,7 +24,7 @@ public class Detect extends javax.swing.JFrame {
         tm.start();
     }
 
-    Timer tm = new Timer(100, new ActionListener() {
+    Timer tm = new Timer(50, new ActionListener() {
 
         @Override
         public void actionPerformed(ActionEvent e) {

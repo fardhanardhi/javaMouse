@@ -50,6 +50,8 @@ public class Move extends javax.swing.JFrame {
     public void moveCursor(int x, int y) {
         txtX.setText("x: " + x);
         txtY.setText("y: " + y);
+        
+        robot.mouseMove(x,y);
     }
 
     @SuppressWarnings("unchecked")

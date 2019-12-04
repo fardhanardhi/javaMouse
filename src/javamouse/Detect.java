@@ -39,7 +39,7 @@ public class Detect extends javax.swing.JFrame {
             System.out.println(data);
 
             try {
-                String ip = "";
+                String ip = "192.168.65.110";
                 int port = 2134;
                 InetAddress ia = InetAddress.getByName(ip);
                 byte[] b = data.getBytes();

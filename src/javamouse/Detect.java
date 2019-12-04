@@ -8,9 +8,12 @@ package javamouse;
 import java.awt.MouseInfo;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.MulticastSocket;
 import javax.swing.Timer;
 
 /**
@@ -34,20 +37,31 @@ public class Detect extends javax.swing.JFrame {
             txtX.setText("x: " + posX);
             txtY.setText("y: " + posY);
 
-            String data = String.valueOf(posX.intValue() + "," + posY.intValue());
-            
-            System.out.println(data);
+            String dataS = String.valueOf(posX.intValue() + "," + posY.intValue());
+
+            System.out.println(dataS);
 
             try {
-                String ip = "192.168.65.110";
-                int port = 2134;
-                InetAddress ia = InetAddress.getByName(ip);
-                byte[] b = data.getBytes();
-                DatagramPacket dp = new DatagramPacket(b, b.length, ia, port);
-                DatagramSocket sender = new DatagramSocket();
-                sender.send(dp);
+//                String ip = "192.168.65.110";
+//                int port = 2134;
+//                InetAddress ia = InetAddress.getByName(ip);
+//                byte[] b = data.getBytes();
+//                DatagramPacket dp = new DatagramPacket(b, b.length, ia, port);
+//                DatagramSocket sender = new DatagramSocket();
+//                sender.send(dp);
 
-//            new PopupAntrian(totalQueue).setVisible(true);
+                MulticastSocket chat = new MulticastSocket(1234);
+                InetAddress group = InetAddress.getByName("234.5.6.7");
+
+                chat.joinGroup(group);
+
+                System.out.println("Type a message for the server:");
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                DatagramPacket data = new DatagramPacket(dataS.getBytes(), 0, dataS.length(), group, 1234);
+
+                chat.send(data);
+
+                chat.close();
             } catch (Exception x) {
                 System.out.println("Gagal");
             }

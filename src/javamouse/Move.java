@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.MulticastSocket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.Timer;
@@ -50,8 +52,8 @@ public class Move extends javax.swing.JFrame {
     public void moveCursor(int x, int y) {
         txtX.setText("x: " + x);
         txtY.setText("y: " + y);
-        
-        robot.mouseMove(x,y);
+
+        robot.mouseMove(x, y);
     }
 
     @SuppressWarnings("unchecked")
@@ -148,28 +150,51 @@ class ServerThread extends Thread {
 
     @Override
     public void run() {
+//        try {
+//            while (true) {
+//                byte[] buffer = new byte[3000];
+//                DatagramPacket incoming = new DatagramPacket(buffer, buffer.length
+//                );
+//                DatagramSocket ds = new DatagramSocket(this.port);
+//
+//                ds.receive(incoming);
+//                byte[] data = incoming.getData();
+//                String s = new String(data, 0, data.length).trim();
+//
+//                System.out.println(s);
+//                
+//                String posRaw[] = s.split("\\,", 0);
+//                int xPos = Integer.parseInt(posRaw[0]);
+//                int yPos = Integer.parseInt(posRaw[1]);
+//                move.moveCursor(xPos, yPos);
+//
+//                ds.close();
+//            }
+//        } catch (IOException e) {
+//            System.err.println(e);
+//        }
+
         try {
-            while (true) {
-                byte[] buffer = new byte[3000];
-                DatagramPacket incoming = new DatagramPacket(buffer, buffer.length
-                );
-                DatagramSocket ds = new DatagramSocket(this.port);
-
-                ds.receive(incoming);
-                byte[] data = incoming.getData();
-                String s = new String(data, 0, data.length).trim();
-
-                System.out.println(s);
+            MulticastSocket server = new MulticastSocket(1234);
+            InetAddress group = InetAddress.getByName("234.5.6.7");
+            //getByName – Mengembalikan alamat IP yang diberikan oleh Host 
+            server.joinGroup(group);
+            boolean infinite = true;
+            /* Server terus-menerus menerima data dan mencetak mereka */
+            while (infinite) {
+                byte buf[] = new byte[1024];
+                DatagramPacket data = new DatagramPacket(buf, buf.length);
+                server.receive(data);
+                String msg = new String(data.getData()).trim();
+                System.out.println(msg);
                 
-                String posRaw[] = s.split("\\,", 0);
+                String posRaw[] = msg.split("\\,", 0);
                 int xPos = Integer.parseInt(posRaw[0]);
                 int yPos = Integer.parseInt(posRaw[1]);
                 move.moveCursor(xPos, yPos);
-
-                ds.close();
             }
-        } catch (IOException e) {
-            System.err.println(e);
+            server.close();
+        } catch (Exception e) {
         }
     }
 }

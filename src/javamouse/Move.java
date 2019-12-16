@@ -21,33 +21,17 @@ import javax.swing.Timer;
 
 public class Move extends javax.swing.JFrame {
 
-    int posX[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300};
-    int posY[] = {0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230, 240, 250, 260, 270, 280, 290, 300};
     Robot robot;
     int port;
+    String ip;
 
     public Move() throws AWTException {
         initComponents();
         robot = new Robot();
-//        tm.start();
         this.port = 2134;
         ServerThread st = new ServerThread(this, this.port);
         st.start();
     }
-
-    int count = 0;
-    Timer tm = new Timer(100, new ActionListener() {
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            System.out.println("x:" + MouseInfo.getPointerInfo().getLocation().getX() + "y:" + MouseInfo.getPointerInfo().getLocation().getY());
-            robot.mouseMove(posX[count], posY[count]);
-            count++;
-            if (count > posX.length - 1) {
-                tm.stop();
-            }
-        }
-    });
 
     public void moveCursor(int x, int y) {
         txtX.setText("x: " + x);
@@ -74,23 +58,20 @@ public class Move extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(129, 129, 129)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtX)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtY)
-                        .addGap(76, 260, Short.MAX_VALUE))))
+                    .addComponent(txtX)
+                    .addComponent(txtY))
+                .addContainerGap(97, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(95, 95, 95)
+                .addContainerGap()
                 .addComponent(txtX)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtY)
-                .addContainerGap(159, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();

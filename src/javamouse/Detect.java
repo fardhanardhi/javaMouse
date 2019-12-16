@@ -31,8 +31,8 @@ public class Detect extends javax.swing.JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            Double posX = MouseInfo.getPointerInfo().getLocation().getX();
-            Double posY = MouseInfo.getPointerInfo().getLocation().getY();
+            Double posX = MouseInfo.getPointerInfo().getLocation().getX()/2;
+            Double posY = MouseInfo.getPointerInfo().getLocation().getY()/2;
 
             txtX.setText("x: " + posX);
             txtY.setText("y: " + posY);
@@ -86,23 +86,20 @@ public class Detect extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(129, 129, 129)
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtX)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtY)
-                        .addGap(76, 260, Short.MAX_VALUE))))
+                    .addComponent(txtX)
+                    .addComponent(txtY))
+                .addContainerGap(97, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(95, 95, 95)
+                .addContainerGap()
                 .addComponent(txtX)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtY)
-                .addContainerGap(159, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -136,7 +133,7 @@ public class Detect extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Detect().setVisible(true);
+                new Detect().setVisible(true);             
             }
         });
     }

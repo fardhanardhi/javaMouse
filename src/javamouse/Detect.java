@@ -21,12 +21,21 @@ import javax.swing.Timer;
  * @author adan
  */
 public class Detect extends javax.swing.JFrame {
+    int port;
+    String ip;
 
-    public Detect() {
+    public Detect(int port, String ip) {
         initComponents();
+        
+        this.port = port;
+        this.ip = ip;
+        
         tm.start();
     }
 
+    public Detect() {
+    }
+    
     Timer tm = new Timer(50, new ActionListener() {
 
         @Override
@@ -42,26 +51,18 @@ public class Detect extends javax.swing.JFrame {
             System.out.println(dataS);
 
             try {
-//                String ip = "192.168.65.110";
-//                int port = 2134;
-//                InetAddress ia = InetAddress.getByName(ip);
-//                byte[] b = data.getBytes();
-//                DatagramPacket dp = new DatagramPacket(b, b.length, ia, port);
-//                DatagramSocket sender = new DatagramSocket();
-//                sender.send(dp);
+                MulticastSocket multicastSocket = new MulticastSocket(port);
+                InetAddress group = InetAddress.getByName(ip);
 
-                MulticastSocket chat = new MulticastSocket(1234);
-                InetAddress group = InetAddress.getByName("234.5.6.7");
-
-                chat.joinGroup(group);
+                multicastSocket.joinGroup(group);
 
                 System.out.println("Type a message for the server:");
                 BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-                DatagramPacket data = new DatagramPacket(dataS.getBytes(), 0, dataS.length(), group, 1234);
+                DatagramPacket data = new DatagramPacket(dataS.getBytes(), 0, dataS.length(), group, port);
 
-                chat.send(data);
+                multicastSocket.send(data);
 
-                chat.close();
+                multicastSocket.close();
             } catch (Exception x) {
                 System.out.println("Gagal");
             }

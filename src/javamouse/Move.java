@@ -21,18 +21,25 @@ import javax.swing.Timer;
 
 public class Move extends javax.swing.JFrame {
 
-    Robot robot;
+Robot robot;
     int port;
     String ip;
 
-    public Move() throws AWTException {
+    public Move(int port, String ip) throws AWTException {
         initComponents();
+        
         robot = new Robot();
-        this.port = 2134;
-        ServerThread st = new ServerThread(this, this.port);
+        
+        this.port = port;
+        this.ip = ip;
+        
+        ServerThread st = new ServerThread(this, this.port, this.ip);
         st.start();
     }
 
+    public Move() throws AWTException {
+    }
+    
     public void moveCursor(int x, int y) {
         txtX.setText("x: " + x);
         txtY.setText("y: " + y);
@@ -122,42 +129,20 @@ public class Move extends javax.swing.JFrame {
 class ServerThread extends Thread {
 
     int port;
+    String ip;
     Move move;
 
-    public ServerThread(Move move, int port) {
+    public ServerThread(Move move, int port, String ip) {
         this.move = move;
         this.port = port;
+        this.ip = ip; 
     }
 
     @Override
     public void run() {
-//        try {
-//            while (true) {
-//                byte[] buffer = new byte[3000];
-//                DatagramPacket incoming = new DatagramPacket(buffer, buffer.length
-//                );
-//                DatagramSocket ds = new DatagramSocket(this.port);
-//
-//                ds.receive(incoming);
-//                byte[] data = incoming.getData();
-//                String s = new String(data, 0, data.length).trim();
-//
-//                System.out.println(s);
-//                
-//                String posRaw[] = s.split("\\,", 0);
-//                int xPos = Integer.parseInt(posRaw[0]);
-//                int yPos = Integer.parseInt(posRaw[1]);
-//                move.moveCursor(xPos, yPos);
-//
-//                ds.close();
-//            }
-//        } catch (IOException e) {
-//            System.err.println(e);
-//        }
-
         try {
-            MulticastSocket server = new MulticastSocket(1234);
-            InetAddress group = InetAddress.getByName("234.5.6.7");
+            MulticastSocket server = new MulticastSocket(port);
+            InetAddress group = InetAddress.getByName(ip);
             //getByName – Mengembalikan alamat IP yang diberikan oleh Host 
             server.joinGroup(group);
             boolean infinite = true;

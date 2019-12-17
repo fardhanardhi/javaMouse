@@ -26,8 +26,9 @@ import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import sun.awt.image.ImageFormatException;
 
-import com.sun.image.codec.jpeg.ImageFormatException;
+//import com.sun.image.codec.jpeg.ImageFormatException;
 
 /**
  * Multicast Image Sender Version: 0.1

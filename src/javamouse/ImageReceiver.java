@@ -17,29 +17,16 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JWindow;
 
-/**
- * Multicast Image Receiver Version: 0.1
- *
- * @author Jochen Luell
- *
- */
 public class ImageReceiver implements KeyListener {
 
-    /* Flags and sizes */
     public static int HEADER_SIZE = 8;
 
     public static int SESSION_START = 128;
 
     public static int SESSION_END = 64;
 
-    /*
-	 * The absolute maximum datagram packet size is 65507, The maximum IP packet
-	 * size of 65535 minus 20 bytes for the IP header and 8 bytes for the UDP
-	 * header.
-     */
     private static int DATAGRAM_MAX_SIZE = 65507;
 
-    /* Default values */
     public static String IP_ADDRESS = "225.4.5.6";
 
     public static int PORT = 4444;
@@ -61,19 +48,12 @@ public class ImageReceiver implements KeyListener {
     public ImageReceiver() {
     }
     
-    /**
-     * Revceive method
-     *
-     * @param multicastAddress IP multicast adress
-     * @param port Port
-     */
     private void receiveImages(String multicastAddress, int port) {
         boolean debug = true;
 
         InetAddress ia = null;
         MulticastSocket ms = null;
 
-        /* Constuct frame */
         JLabel labelImage = new JLabel();
         JLabel windowImage = new JLabel();
 
@@ -84,7 +64,6 @@ public class ImageReceiver implements KeyListener {
         frame.setVisible(true);
         frame.addKeyListener(this);
 
-        /* Construct full screen window */
         fullscreenWindow = new JWindow();
         fullscreenWindow.getContentPane().add(windowImage, "North");
         
@@ -92,10 +71,8 @@ public class ImageReceiver implements KeyListener {
         fullscreenWindow.addKeyListener(this);
 
         try {
-            /* Get address */
             ia = InetAddress.getByName(multicastAddress);
 
-            /* Setup socket and join group */
             ms = new MulticastSocket(port);
             ms.joinGroup(ia);
 
@@ -105,28 +82,18 @@ public class ImageReceiver implements KeyListener {
             byte[] imageData = null;
             boolean sessionAvailable = false;
 
-            /* Setup byte array to store data received */
             byte[] buffer = new byte[DATAGRAM_MAX_SIZE];
 
-            /* Receiving loop */
             while (true) {
-                /* Receive a UDP packet */
                 DatagramPacket dp = new DatagramPacket(buffer, buffer.length);
                 ms.receive(dp);
                 byte[] data = dp.getData();
 
-                /* Read header infomation */
                 short session = (short) (data[1] & 0xff);
                 short slices = (short) (data[2] & 0xff);
                 int maxPacketSize = (int) ((data[3] & 0xff) << 8 | (data[4] & 0xff)); // mask
-                // the
-                // sign
-                // bit
                 short slice = (short) (data[5] & 0xff);
                 int size = (int) ((data[6] & 0xff) << 8 | (data[7] & 0xff)); // mask
-                // the
-                // sign
-                // bit
 
                 if (debug) {
                     System.out.println("------------- PACKET -------------");
@@ -142,19 +109,16 @@ public class ImageReceiver implements KeyListener {
                     System.out.println("------------- PACKET -------------\n");
                 }
 
-                /* If SESSION_START falg is set, setup start values */
                 if ((data[0] & SESSION_START) == SESSION_START) {
                     if (session != currentSession) {
                         currentSession = session;
                         slicesStored = 0;
-                        /* Consturct a appropreately sized byte array */
                         imageData = new byte[slices * maxPacketSize];
                         slicesCol = new int[slices];
                         sessionAvailable = true;
                     }
                 }
 
-                /* If package belogs to current session */
                 if (sessionAvailable && session == currentSession) {
                     if (slicesCol != null && slicesCol[slice] == 0) {
                         slicesCol[slice] = 1;
@@ -164,7 +128,6 @@ public class ImageReceiver implements KeyListener {
                     }
                 }
 
-                /* If image is complete dispay it */
                 if (slicesStored == slices) {
                     ByteArrayInputStream bis = new ByteArrayInputStream(
                             imageData);
@@ -184,7 +147,6 @@ public class ImageReceiver implements KeyListener {
         } finally {
             if (ms != null) {
                 try {
-                    /* Leave group and close socket */
                     ms.leaveGroup(ia);
                     ms.close();
                 } catch (IOException e) {
@@ -193,26 +155,17 @@ public class ImageReceiver implements KeyListener {
         }
     }
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
 
         
     }
 
-    /*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
-     */
     public void keyPressed(KeyEvent keyevent) {
         GraphicsDevice device = GraphicsEnvironment
                 .getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
         String keyPress = String.valueOf(keyevent.getKeyChar());
         
-        /* Toggle full screen mode on key press */
         if (keyPress.equalsIgnoreCase("f")) {
 
             if (fullscreen) {

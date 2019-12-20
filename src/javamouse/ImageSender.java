@@ -30,15 +30,8 @@ import sun.awt.image.ImageFormatException;
 
 //import com.sun.image.codec.jpeg.ImageFormatException;
 
-/**
- * Multicast Image Sender Version: 0.1
- *
- * @author Jochen Luell
- *
- */
 public class ImageSender {
 
-    /* Flags and sizes */
     public static int HEADER_SIZE = 8;
     public static int MAX_PACKETS = 255;
     public static int SESSION_START = 128;
@@ -46,16 +39,10 @@ public class ImageSender {
     public static int DATAGRAM_MAX_SIZE = 65507 - HEADER_SIZE;
     public static int MAX_SESSION_NUMBER = 255;
 
-    /*
-	 * The absolute maximum datagram packet size is 65507, The maximum IP packet
-	 * size of 65535 minus 20 bytes for the IP header and 8 bytes for the UDP
-	 * header.
-     */
     public static String OUTPUT_FORMAT = "jpg";
 
     public static int COLOUR_OUTPUT = BufferedImage.TYPE_INT_RGB;
 
-    /* Default parameters */
     public static double SCALING = 0.5;
     public static int SLEEP_MILLIS = 100;
     public static String IP_ADDRESS = "225.4.5.6";
@@ -70,14 +57,12 @@ public class ImageSender {
         int sessionNumber = 0;
         boolean multicastImages = false;
 
-        // Create Frame
         JFrame frame = new JFrame("Multicast Image Sender");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         JLabel label = new JLabel();
         frame.getContentPane().add(label);
         frame.setVisible(true);
 
-        /* Check weather to multicast screenshots or images */
         if (new File("images").exists() && new File("images").isDirectory()) {
             label.setText("Multicasting images...");
             multicastImages = true;
@@ -88,17 +73,14 @@ public class ImageSender {
         frame.pack();
 
         try {
-            /* Continuously send images */
             while (true) {
                 BufferedImage image;
 
-                /* Get image or screenshot */
                 if (multicastImages) {
                     image = getRandomImageFromDir(new File("images"));
                 } else {
                     image = getScreenshot();
 
-                    /* Draw mousepointer into image */
                     if (SHOW_MOUSEPOINTER) {
                         PointerInfo p = MouseInfo.getPointerInfo();
                         int mouseX = p.getLocation().x;
@@ -123,18 +105,15 @@ public class ImageSender {
 
                 }
 
-                /* Scale image */
                 image = shrink(image, SCALING);
                 byte[] imageByteArray = bufferedImageToByteArray(image, OUTPUT_FORMAT);
                 int packets = (int) Math.ceil(imageByteArray.length / (float) DATAGRAM_MAX_SIZE);
 
-                /* If image has more than MAX_PACKETS slices -> error */
                 if (packets > MAX_PACKETS) {
                     System.out.println("Image is too large to be transmitted!");
                     continue;
                 }
 
-                /* Loop through slices */
                 for (int i = 0; i <= packets; i++) {
                     int flags = 0;
                     flags = i == 0 ? flags | SESSION_START : flags;
@@ -142,7 +121,6 @@ public class ImageSender {
 
                     int size = (flags & SESSION_END) != SESSION_END ? DATAGRAM_MAX_SIZE : imageByteArray.length - i * DATAGRAM_MAX_SIZE;
 
-                    /* Set additional header */
                     byte[] data = new byte[HEADER_SIZE + size];
                     data[0] = (byte) flags;
                     data[1] = (byte) sessionNumber;
@@ -155,20 +133,15 @@ public class ImageSender {
                     
                     System.out.println(data[7]);
 
-                    /* Copy current slice to byte array */
                     System.arraycopy(imageByteArray, i * DATAGRAM_MAX_SIZE, data, HEADER_SIZE, size);
-                    /* Send multicast packet */
                     sendImage(data, IP_ADDRESS, PORT);
 
-                    /* Leave loop if last slice has been sent */
                     if ((flags & SESSION_END) == SESSION_END) {
                         break;
                     }
                 }
-                /* Sleep */
                 Thread.sleep(SLEEP_MILLIS);
 
-                /* Increase session number */
                 sessionNumber = sessionNumber < MAX_SESSION_NUMBER ? ++sessionNumber : 0;
             }
         } catch (Exception e) {
@@ -179,14 +152,6 @@ public class ImageSender {
     public ImageSender() {
     }
 
-    /**
-     * Takes a screenshot (fullscreen)
-     *
-     * @return Sreenshot
-     * @throws AWTException
-     * @throws ImageFormatException
-     * @throws IOException
-     */
     public static BufferedImage getScreenshot() throws AWTException,
             ImageFormatException, IOException {
         Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -199,13 +164,6 @@ public class ImageSender {
         return image;
     }
 
-    /**
-     * Returns a random image from given directory
-     *
-     * @param dir Image directory
-     * @return Random Image
-     * @throws IOException
-     */
     public static BufferedImage getRandomImageFromDir(File dir) throws IOException {
         String[] images = dir.list(new ImageFileFilter());
         int random = new Random().nextInt(images.length);
@@ -216,28 +174,12 @@ public class ImageSender {
         return ImageIO.read(imageFile);
     }
 
-    /**
-     * Converts BufferedImage to byte array
-     *
-     * @param image Image to convert
-     * @param format Image format (JPEG, PNG or GIF)
-     * @return Byte Array
-     * @throws IOException
-     */
     public static byte[] bufferedImageToByteArray(BufferedImage image, String format) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(image, format, baos);
         return baos.toByteArray();
     }
 
-    /**
-     * Scales a bufferd image
-     *
-     * @param source Image to scale
-     * @param w Image widht
-     * @param h Image height
-     * @return Scaled image
-     */
     public static BufferedImage scale(BufferedImage source, int w, int h) {
         Image image = source
                 .getScaledInstance(w, h, Image.SCALE_AREA_AVERAGING);
@@ -248,25 +190,12 @@ public class ImageSender {
         return result;
     }
 
-    /**
-     * Shrinks a BufferedImage
-     *
-     * @param source Image to shrink
-     * @param factor Scaling factor
-     * @return Scaled image
-     */
     public static BufferedImage shrink(BufferedImage source, double factor) {
         int w = (int) (source.getWidth() * factor);
         int h = (int) (source.getHeight() * factor);
         return scale(source, w, h);
     }
 
-    /**
-     * Copies a BufferedImage
-     *
-     * @param image Image to copy
-     * @return Copied image
-     */
     public static BufferedImage copyBufferedImage(BufferedImage image) {
         BufferedImage copyOfIm = new BufferedImage(image.getWidth(), image.getHeight(), image.getType());
         Graphics2D g = copyOfIm.createGraphics();
@@ -275,18 +204,6 @@ public class ImageSender {
         return copyOfIm;
     }
 
-    /*
-	
-     */
-    /**
-     * Sends a byte array via multicast Multicast addresses are IP addresses in
-     * the range of 224.0.0.0 to 239.255.255.255.
-     *
-     * @param imageData Byte array
-     * @param multicastAddress IP multicast address
-     * @param port Port
-     * @return <code>true</code> on success otherwise <code>false</code>
-     */
     private boolean sendImage(byte[] imageData, String multicastAddress,
             int port) {
         InetAddress ia;
@@ -322,26 +239,14 @@ public class ImageSender {
         return ret;
     }
 
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         
     }
 
 }
 
-/**
- * File filter class
- *
- * @author luelljoc
- *
- */
 class ImageFileFilter implements FilenameFilter {
 
-    /* (non-Javadoc)
-     * @see java.io.FilenameFilter#accept(java.io.File, java.lang.String)
-     */
     public boolean accept(File dir, String name) {
         String nameLc = name.toLowerCase();
         return nameLc.endsWith(".jpg") ? true : false;
